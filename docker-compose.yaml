@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15.3-alpine
+    environment:
+      - POSTGRES_DB=taskflow_db
+      - POSTGRES_USER=arthur
+      - POSTGRES_PASSWORD=senha_secreta_123
+      - POSTGRES_ROOT_PASSWORD=root_secreta_123
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "taskflow_db", "-U", "arthur"]
+      timeout: 5s
+      retries: 5
+    volumes:
+      - taskflow_db_data:/var/lib/postgresql/data
+
+  app:
+    build: ./TaskFlow-BackEnd  # <--- Aponta para a pasta do Spring
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/taskflow_db?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=arthur
+      - SPRING_DATASOURCE_PASSWORD=senha_secreta_123
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - API_SECURITY_TOKEN_JWT_SECRET=mysecretkey
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  taskflow_db_data:
