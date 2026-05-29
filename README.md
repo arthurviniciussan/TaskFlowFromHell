@@ -1,269 +1,200 @@
-Desafio Full Stack — “TaskFlow”
+# TaskFlow
 
-Um mini sistema de gerenciamento de tarefas estilo Trello simplificado.
+Mini sistema de gerenciamento de tarefas estilo **Trello simplificado**, desenvolvido como desafio full stack de estudos. Usuários autenticados podem criar, listar, filtrar, atualizar e excluir tarefas com status e prioridade.
 
-Objetivo
+> **Nota:** Este é um projeto de aprendizado e portfólio. A stack e a organização seguem boas práticas para CRUD + JWT, mas **não está pronto para produção** — faltam itens como migrations versionadas, reverse proxy (Nginx), cache (Redis), mensageria (Kafka), testes de integração amplos, CI/CD e hardening de segurança.
 
-Construir uma aplicação full stack onde usuários podem:
+---
 
-Criar tarefas
-Listar tarefas
-Atualizar status
-Filtrar tarefas
-Excluir tarefas
-Fazer login simples
-Stack
-Backend
-Java 21
-Spring Boot
-Spring Web
-Spring Data JPA
-Spring Security + JWT simples
-PostgreSQL (ou H2 se quiser rapidez)
-Lombok
-Frontend
-Angular 19+
-Angular Material
-Reactive Forms
-RxJS
-Signals (opcional, mas fica moderno no portfólio)
-Escopo ideal para 5 horas
-Funcionalidades obrigatórias
-Autenticação
-Login
-JWT armazenado no frontend
-Interceptor Angular enviando token
-Tarefas
+## Funcionalidades
 
-Cada tarefa possui:
+- **Autenticação:** registro e login com JWT; rotas protegidas no Angular (`authGuard` / `guestGuard`)
+- **Tarefas (CRUD):** criar, listar, editar, excluir e alterar status
+- **Filtros no frontend:** busca por texto, status e prioridade (filtro local após carregar a lista)
+- **UX:** Angular Material, loading spinner, notificações de sucesso/erro, tema claro/escuro
+- **Containerização:** Docker Compose com PostgreSQL, API Spring e frontend Angular
 
-id
-título
-descrição
-status:
-TODO
-IN_PROGRESS
-DONE
-prioridade:
-LOW
-MEDIUM
-HIGH
-data de criação
-Backend
+Cada tarefa possui: `id`, `title`, `description`, `status`, `priority`, `dueDate`.
 
-Endpoints:
+| Campo      | Valores                                      |
+|-----------|-----------------------------------------------|
+| **status**   | `TODO`, `IN_PROGRESS`, `DONE`              |
+| **priority** | `LOW`, `MEDIUM`, `HIGH`                    |
 
-POST /auth/login
-GET /tasks
-POST /tasks
-PUT /tasks/{id}
-DELETE /tasks/{id}
-Frontend
+---
 
-Telas:
+## Stack
 
-Login
-Dashboard de tarefas
-Diferenciais que valorizam MUITO no portfólio
+### Backend (`TaskFlow-BackEnd`)
 
-Esses dão “cara de pleno” sem muito esforço.
+| Tecnologia | Uso |
+|------------|-----|
+| **Java 21** | Linguagem (Eclipse Temurin no Docker) |
+| **Spring Boot 4.0.6** | API REST |
+| **Spring Web MVC** | Controllers HTTP |
+| **Spring Data JPA** | Persistência |
+| **Spring Security** | Autenticação stateless |
+| **Auth0 java-jwt 4.4.0** | Geração e validação de tokens |
+| **PostgreSQL 15** | Banco em produção local (Docker) |
+| **H2** | Banco em memória para desenvolvimento sem Docker |
+| **Lombok** | Redução de boilerplate em entidades/DTOs |
+| **Maven 3.9** | Build (multi-stage no Dockerfile) |
 
-1. Filtro de tarefas
+### Frontend (`TaskFlow-FrontEnd`)
 
-Por:
+| Tecnologia | Uso |
+|------------|-----|
+| **Angular 21** | SPA standalone |
+| **Angular Material + CDK** | UI (formulários, cards, chips, snackbar) |
+| **Reactive Forms** | Login, registro e formulário de tarefas |
+| **RxJS** | HTTP, debounce nos filtros |
+| **TypeScript 5.9** | Tipagem |
+| **Node 22 Alpine** | Ambiente no Dockerfile |
 
-status
-prioridade
-2. Loading states
-Spinner
-Skeleton
-Botão desabilitado durante request
-3. Toasts
+### Infraestrutura
 
-Feedback visual:
+| Tecnologia | Uso |
+|------------|-----|
+| **Docker / Docker Compose** | Orquestração de `db`, `app` e `frontend` |
+| **postgres:15.3-alpine** | Banco persistente com volume `taskflow_db_data` |
 
-“Tarefa criada”
-“Erro ao salvar”
-4. Organização limpa
+---
 
-No Angular:
+## Princípios e arquitetura
 
-core/
-shared/
-features/tasks/
+### Backend
 
-No Spring:
+Fluxo em camadas: **Controller → Service → Repository**, com DTOs separando contrato da API das entidades JPA.
 
-controller/
-service/
-repository/
-dto/
-security/
-5. Docker Compose
+```
+TaskFlow-BackEnd/src/main/java/com/arthur/TaskFlow/
+├── controller/       # REST (Auth, Tasks)
+├── service/          # Regras de negócio
+├── repository/       # Spring Data JPA
+├── entity/           # User, Task + enums Status/Priority
+├── DTOs/             # Request/Response
+└── Infra/security/   # JWT, filtros, SecurityConfig, CORS
+```
 
-Subir:
+- API **stateless** (sem sessão HTTP)
+- Senhas com **BCrypt**
+- Endpoints públicos apenas em `/auth/login` e `/auth/register`
+- Schema gerenciado por `spring.jpa.hibernate.ddl-auto=update` (adequado para estudo, **não** para produção)
 
-backend
-postgres
+### Frontend
 
-Isso impressiona bastante recrutador.
+Organização por responsabilidade:
 
-Arquitetura recomendada
-Backend
-Entidades
-User
-Task
-DTOs
-TaskRequestDTO
-TaskResponseDTO
-LoginRequestDTO
-Fluxo
+```
+TaskFlow-FrontEnd/src/app/
+├── core/           # services, guards, interceptors, models, constants
+├── shared/         # componentes reutilizáveis (ex.: loading-spinner)
+└── features/
+    ├── auth/       # login, register
+    └── tasks/      # dashboard, list, card, form, filters
+```
 
-Controller → Service → Repository
+- **Interceptors:** `authInterceptor` (Bearer token) e `errorInterceptor` (tratamento global)
+- **Token** persistido em `localStorage` via `TokenService`
+- **API base:** `http://localhost:8080` (`src/environments/environment.ts`)
 
-Estrutura Angular
-src/app
-├── core
-│   ├── interceptors
-│   ├── services
-│   └── guards
-├── shared
-│   ├── components
-│   └── models
-├── features
-│   ├── auth
-│   └── tasks
-Como deixar “bonito” rapidamente
+---
 
-Use:
+## API
 
-Angular Material
-Dark mode simples
-Cards para tarefas
-Chips coloridos para status
+Base URL: `http://localhost:8080`
 
-Fica visualmente profissional muito rápido.
+### Autenticação
 
-Fluxo do usuário
-Login
-Visualiza tarefas
-Cria tarefa
-Atualiza status
-Filtra tarefas
-Remove tarefa
-Critérios que recrutadores olham
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/login` | Login — retorna JWT |
+| `POST` | `/auth/register` | Cadastro de usuário |
 
-Eles normalmente observam:
+Headers nas rotas protegidas: `Authorization: Bearer <token>`
 
-Backend
-REST organizado
-DTOs
-Tratamento de exceção
-Segurança básica
-Separação de camadas
-Frontend
-Componentização
-Estado
-Boas práticas Angular
-Responsividade básica
-Integração limpa com API
-O que NÃO fazer
+### Tarefas
 
-Evite:
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/tasks` | Lista todas as tarefas |
+| `GET` | `/tasks/{id}` | Busca por ID |
+| `GET` | `/tasks/status/{status}` | Lista por status (`TODO`, `IN_PROGRESS`, `DONE`) |
+| `POST` | `/tasks/new` | Cria tarefa |
+| `POST` | `/tasks/{id}/update` | Atualiza tarefa |
+| `POST` | `/tasks/{id}/status` | Atualiza apenas o status (body: `{ "status": "DONE" }`) |
+| `DELETE` | `/tasks/{id}` | Remove tarefa |
 
-Microserviços
-Kafka
-Clean Architecture exagerada
-Kubernetes
-Testes ultra complexos
-Redis
-CQRS
+---
 
-Para vaga júnior isso pode parecer overengineering.
+## Como executar
 
-Como publicar
-Backend
+### Com Docker Compose (recomendado)
 
-Suba no:
+Na raiz do repositório:
 
-Render
-ou
-Railway
-Frontend
+```bash
+docker compose up --build
+```
 
-Suba no:
+| Serviço   | URL |
+|-----------|-----|
+| Frontend  | http://localhost:4200 |
+| Backend   | http://localhost:8080 |
+| PostgreSQL| localhost:5432 (`taskflow_db`, usuário `arthur`) |
 
-Vercel
-ou
-Netlify
-README ideal
+O backend aguarda o healthcheck do Postgres antes de subir. Variáveis de ambiente (JWT, datasource, `ddl-auto`) estão definidas em `docker-compose.yaml`.
 
-Inclua:
+### Desenvolvimento local (sem Docker)
 
-stack usada
-screenshots
-arquitetura
-instruções de execução
-endpoints
-melhorias futuras
-Melhorias futuras (ótimo para GitHub)
+**Backend** — requer Java 21 e Maven. Por padrão usa **H2 em memória** (`application.yaml`):
 
-Depois das 5 horas você pode evoluir:
+```bash
+cd TaskFlow-BackEnd
+./mvnw spring-boot:run
+```
 
-drag and drop estilo Kanban
-testes unitários
-paginação
-websocket
-refresh token
-upload de anexos
-tema customizado
-Nível que esse projeto demonstra
+**Frontend** — requer Node.js compatível com Angular 21:
 
-Esse desafio demonstra:
+```bash
+cd TaskFlow-FrontEnd
+npm install
+npm start
+```
 
-CRUD real
-autenticação
-integração full stack
-arquitetura moderna
-Angular + Spring na prática
+Acesse http://localhost:4200 e garanta que a API em `environment.ts` aponte para `http://localhost:8080`.
 
-Isso já é suficiente para um excelente projeto de portfólio júnior/intermediário.
+Para usar PostgreSQL localmente, configure `SPRING_DATASOURCE_*` (como no Compose) antes de iniciar o Spring.
 
-Variante mais “diferenciada”
+---
 
-Se quiser fugir do clássico “to-do”:
+## Estrutura do repositório
 
-Sistema de Tickets de Suporte
+```
+TaskFlowFromHell/
+├── docker-compose.yaml
+├── TaskFlow-BackEnd/          # Spring Boot + Dockerfile (Maven + Temurin 21)
+└── TaskFlow-FrontEnd/         # Angular + Dockerfile (Node 22)
+```
 
-ou
+---
 
-Controle de Hábitos
+## O que falta para produção
 
-ou
+Este projeto prioriza aprendizado e entrega de um MVP funcional. Evoluções naturais:
 
-Mini ERP de Estoque
+| Área | Melhoria |
+|------|----------|
+| **Banco** | Flyway/Liquibase em vez de `ddl-auto=update` |
+| **Deploy** | Nginx (ou similar) como reverse proxy e servir build estático do Angular |
+| **Cache / filas** | Redis, Kafka/RabbitMQ (se houver necessidade real) |
+| **Segurança** | Refresh token, rotação de secrets, rate limiting, HTTPS |
+| **Qualidade** | Testes de integração E2E, pipeline CI, cobertura consistente |
+| **Produto** | Kanban com drag-and-drop, paginação, anexos, multi-tenant |
+| **Observabilidade** | Logs estruturados, métricas, health checks expostos |
 
-ou
+---
 
-Controle Financeiro Pessoal
+## Licença
 
-Mas sinceramente:
-um “task manager” MUITO bem feito impressiona mais do que um ERP incompleto.
-
-Minha sugestão prática
-
-Faça em 3 etapas:
-
-Etapa 1 — MVP (3h)
-Login
-CRUD tarefas
-Integração Angular + Spring
-Etapa 2 — UX (1h)
-Material UI
-filtros
-toasts
-loading
-Etapa 3 — Portfólio (1h)
-Docker
-README
-Deploy
+Projeto de estudos — uso livre para referência e portfólio.
