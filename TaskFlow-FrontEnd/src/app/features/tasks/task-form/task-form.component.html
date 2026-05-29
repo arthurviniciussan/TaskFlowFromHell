@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar tarefa' : 'Nova tarefa' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="task-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="title" />
+      @if (form.controls.title.touched && form.controls.title.hasError('required')) {
+        <mat-error>Título é obrigatório</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descrição</mat-label>
+      <textarea matInput rows="4" formControlName="description"></textarea>
+      @if (form.controls.description.touched && form.controls.description.hasError('required')) {
+        <mat-error>Descrição é obrigatória</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Prioridade</mat-label>
+      <mat-select formControlName="priority">
+        @for (priority of priorityOptions; track priority) {
+          <mat-option [value]="priority">{{ priorityLabels[priority] }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.priority.touched && form.controls.priority.hasError('required')) {
+        <mat-error>Prioridade é obrigatória</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()" [disabled]="loading()">Cancelar</button>
+  <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="loading()">
+    @if (loading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ isEditMode ? 'Salvar' : 'Criar' }}
+    }
+  </button>
+</mat-dialog-actions>

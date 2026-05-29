@@ -1,0 +1,48 @@
+<div class="dashboard">
+  <mat-toolbar class="toolbar">
+    <div class="toolbar-brand">
+      <mat-icon>task_alt</mat-icon>
+      <span>TaskFlow</span>
+    </div>
+
+    <span class="spacer"></span>
+
+    <span class="greeting">Olá, {{ username }}</span>
+
+    <button mat-icon-button (click)="toggleTheme()" [attr.aria-label]="isDark() ? 'Modo claro' : 'Modo escuro'">
+      <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <button mat-stroked-button (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Sair
+    </button>
+  </mat-toolbar>
+
+  <main class="content">
+    <header class="page-header">
+      <div>
+        <h1>Minhas tarefas</h1>
+        <p>{{ taskCount() }} tarefa(s) exibida(s)</p>
+      </div>
+      <button mat-flat-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Nova tarefa
+      </button>
+    </header>
+
+    <section class="filters-section">
+      <app-task-filters (filtersChange)="onFiltersChange($event)" />
+    </section>
+
+    <section class="list-section">
+      <app-task-list
+        [tasks]="filteredTasks()"
+        [loading]="loading()"
+        (edit)="onEdit($event)"
+        (deleted)="onDeleted($event)"
+        (statusChanged)="onStatusChanged($event)"
+      />
+    </section>
+  </main>
+</div>

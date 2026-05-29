@@ -1,0 +1,19 @@
+@if (loading()) {
+  <app-loading-spinner message="Carregando tarefas..." />
+} @else if (tasks().length === 0) {
+  <div class="empty-state">
+    <p>Nenhuma tarefa encontrada.</p>
+    <span>Ajuste os filtros ou crie uma nova tarefa.</span>
+  </div>
+} @else {
+  <div class="task-grid">
+    @for (task of tasks(); track task.id) {
+      <app-task-card
+        [task]="task"
+        (edit)="edit.emit($event)"
+        (deleted)="deleted.emit($event)"
+        (statusChanged)="statusChanged.emit($event)"
+      />
+    }
+  </div>
+}

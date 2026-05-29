@@ -1,0 +1,55 @@
+<mat-card class="task-card">
+  <mat-card-header>
+    <mat-card-title>{{ task().title }}</mat-card-title>
+    <div class="actions">
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Ações da tarefa">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          <span>Editar</span>
+        </button>
+        <button mat-menu-item (click)="onDelete()" [disabled]="deleting()">
+          <mat-icon>delete</mat-icon>
+          <span>Excluir</span>
+        </button>
+      </mat-menu>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <p class="description">{{ task().description }}</p>
+
+    <div class="chips">
+      <mat-chip [class]="statusClass(task().status)">
+        {{ statusLabels[task().status] }}
+      </mat-chip>
+      <mat-chip [class]="priorityClass(task().priority)">
+        {{ priorityLabels[task().priority] }}
+      </mat-chip>
+    </div>
+
+    @if (task().dueDate) {
+      <p class="due-date">
+        <mat-icon>event</mat-icon>
+        {{ task().dueDate | date: 'dd/MM/yyyy' }}
+      </p>
+    }
+  </mat-card-content>
+
+  <mat-card-actions>
+    <mat-form-field appearance="outline" class="status-select" subscriptSizing="dynamic">
+      <mat-label>Alterar status</mat-label>
+      <mat-select
+        [value]="task().status"
+        [disabled]="updatingStatus()"
+        (selectionChange)="onStatusChange($event.value)"
+      >
+        @for (status of statusOptions; track status) {
+          <mat-option [value]="status">{{ statusLabels[status] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </mat-card-actions>
+</mat-card>

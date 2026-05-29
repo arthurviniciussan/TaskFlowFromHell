@@ -1,6 +1,7 @@
 com/arthur/TaskFlow/repository/TaskRepository.class
 com/arthur/TaskFlow/service/AuthService.class
 com/arthur/TaskFlow/DTOs/userDTO/AuthResponseDTO.class
+com/arthur/TaskFlow/controller/StatusRequest.class
 com/arthur/TaskFlow/entity/enums/Status.class
 com/arthur/TaskFlow/DTOs/TaskRequestDTO.class
 com/arthur/TaskFlow/Infra/security/CustomUserDetailsService.class

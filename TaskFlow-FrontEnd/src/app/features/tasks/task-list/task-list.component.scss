@@ -1,0 +1,25 @@
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--bg-surface);
+
+  p {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  span {
+    font-size: 0.9rem;
+  }
+}

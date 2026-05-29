@@ -1,0 +1,32 @@
+<form class="filters" [formGroup]="form">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Buscar por título</mat-label>
+    <input matInput formControlName="search" placeholder="Ex: deploy, reunião..." />
+    <mat-icon matPrefix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Status</mat-label>
+    <mat-select formControlName="status">
+      <mat-option value="">Todos</mat-option>
+      @for (status of statusOptions; track status) {
+        <mat-option [value]="status">{{ statusLabels[status] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Prioridade</mat-label>
+    <mat-select formControlName="priority">
+      <mat-option value="">Todas</mat-option>
+      @for (priority of priorityOptions; track priority) {
+        <mat-option [value]="priority">{{ priorityLabels[priority] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-stroked-button type="button" (click)="clearFilters()">
+    <mat-icon>filter_alt_off</mat-icon>
+    Limpar
+  </button>
+</form>

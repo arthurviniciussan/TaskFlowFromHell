@@ -1,0 +1,15 @@
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: min(100%, 420px);
+  padding-top: 0.5rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-actions button mat-spinner {
+  margin: 0 auto;
+}
